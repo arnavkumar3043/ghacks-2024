@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schedule Office Hours</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <ul>
+      <img
+        src="{{ url_for('static', filename='img/logo.png') }}"
+        class="logo-img"
+      />
+      <li><a class="active" href="/profdashboard">Schedule</a></li>
+      <li><a href="/profhours">Office Hours</a></li>
+      <li><a href="/logout">Logout</a></li>
+    </ul>
+
+    <div style="margin-left: 25%; padding: 1px 16px; height: 1000px">
+      <h1>SCHEDULE OFFICE HOURS</h1>
+      <div class="form-container">
+        <div class="form">
+          <label for="date">Choose a date:</label>
+          <input type="datetime-local" id="date" name="date" required />
+
+          <label for="location">Choose a location:</label>
+          <input id="location" name="location" required type="text" />
+
+          <label for="class">Enter Class</label>
+          <input id="class" name="class" required type="text" />
+
+          <button id="create-question">Submit</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      $(document).ready(function () {
+        $("#create-question").on("click", function (event) {
+          var datetime = $("#date").val();
+          var location = $("#location").val();
+          var lec = $("#class").val();
+
+          $.ajax({
+            url: "/createofficehour",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              datetime: datetime,
+              location: location,
+              lecture: lec,
+            }),
+            success: function (response) {
+              alert("Office hour successfully inserted.");
+            },
+            error: function (error) {
+              alert("Error inserting office hour.");
+            },
+          });
+        });
+      });
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+  </body>
+</html>

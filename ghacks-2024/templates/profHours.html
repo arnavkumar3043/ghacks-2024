@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Office Hours</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <ul>
+      <img
+        src="{{ url_for('static', filename='img/logo.png') }}"
+        class="logo-img"
+      />
+      <li><a href="/profdashboard">Schedule</a></li>
+      <li><a class="active" href="/profhours">Office Hours</a></li>
+      <li><a href="/logout">Logout</a></li>
+    </ul>
+
+    <div style="margin-left: 25%; padding: 1px 16px; height: 1000px">
+      <h1>MY OFFICE HOURS</h1>
+
+      {% for class, datetime, questions, location, prof_email, officehour_id in
+      office_hours %}
+      <div class="tab">
+        <input type="checkbox" id="tab{{ officehour_id }}" />
+        <label class="tab-label" for="tab{{ officehour_id }}"
+          >{{ class }} - {{ datetime }}</label
+        >
+        <div class="tab-content">
+          <div class="hour-info">
+            <span><strong>Date & Time:</strong> {{ datetime }}</span><br />
+            <span><strong>Location:</strong> {{ location }}</span>
+          </div>
+
+          <h3>Questions:</h3>
+          {% if questions %} {% for question, votes, question_id in questions %}
+          <div class="question">
+            <div>Q{{ loop.index }}. {{ question }}</div>
+            <div>{{ votes }} Upvotes</div>
+          </div>
+          {% endfor %} {% else %}
+          <p>No questions have been asked yet.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+  </body>
+</html>

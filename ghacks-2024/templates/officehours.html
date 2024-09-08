@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upcoming Office Hours</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <ul>
+      <img
+        src="{{ url_for('static', filename='img/logo.png') }}"
+        class="logo-img"
+      />
+      <li><a href="/">Professors</a></li>
+      <li><a class="active" href="/officehours">Office Hours</a></li>
+      <li><a href="/logout">Logout</a></li>
+    </ul>
+
+    <div style="margin-left: 25%; padding: 1px 16px; height: 1000px">
+      <h1>UPCOMING OFFICE HOURS</h1>
+      {% for office_hour in office_hours %}
+      <div class="tab">
+        <input type="checkbox" id="tab{{ loop.index }}" />
+        <label class="tab-label" for="tab{{ loop.index }}"
+          >{{ office_hour[5] }} - {{ office_hour[0] }}</label
+        >
+        <div class="tab-content">
+          <div>
+            <div class="hour-info">
+              <span>{{ office_hour[0] }}</span>
+              <span>{{ office_hour[1] }}</span>
+              <span>{{ office_hour[3] }}</span>
+            </div>
+            <div class="questions">
+              {% if office_hour[2] %} {% for question, votes, question_id,
+              has_voted in office_hour[2] %}
+              <div class="question">
+                <div>{{ question }}</div>
+                <div>{{ votes }} Upvotes</div>
+                {% if has_voted %}
+                <button class="upvote-button upvoted" disabled>Upvoted</button>
+                {% else %}
+                <button
+                  class="upvote-button"
+                  data-question-id="{{ question_id }}"
+                >
+                  Upvote
+                </button>
+                {% endif %}
+              </div>
+              {% endfor %} {% else %}
+              <p>No questions available.</p>
+              {% endif %}
+            </div>
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="Don't See Your Question Here? Ask it!"
+              class="ask-question-input"
+              id="ask-question-input-{{ office_hour[6] }}"
+            />
+            <button
+              class="ask-question-button"
+              data-officehour-id="{{ office_hour[6] }}"
+            >
+              Ask
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      <!-- <div class="tab">
+        <input type="checkbox" id="tab1" />
+        <label class="tab-label" for="tab1">Tab 1</label>
+        <div class="tab-content">
+          <div>
+            <div class="hour-info">
+              <span>Name</span><span>Date Time</span><span>Location</span>
+            </div>
+
+            <div class="question">
+              <div>Q1. Hi What is this ?</div>
+              <button>Upvote</button>
+            </div>
+          </div>
+        </div>
+      </div> -->
+    </div>
+    <script>
+      $(document).ready(function () {
+        $(".ask-question-button").on("click", function (event) {
+          event.preventDefault();
+
+          var officehourId = $(this).data("officehour-id");
+          var questionInput = $("#ask-question-input-" + officehourId);
+          var question = questionInput.val();
+
+          $.ajax({
+            url: "/askquestion",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              question: question,
+              officehour_id: officehourId,
+            }),
+            success: function (response) {
+              alert("Question successfully added.");
+              location.reload(); // Reload the page to update the questions
+            },
+            error: function (error) {
+              alert("Error adding question.");
+            },
+          });
+        });
+
+        $(".upvote-button").on("click", function (event) {
+          event.preventDefault();
+
+          var questionId = $(this).data("question-id");
+          var button = $(this);
+
+          $.ajax({
+            url: "/upvote",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              question_id: questionId,
+            }),
+            success: function (response) {
+              button.text("Upvoted");
+              button.addClass("upvoted");
+              button.attr("disabled", true);
+              button.prev("div").text(response.new_votes + " Upvotes");
+            },
+            error: function (error) {
+              alert("You have already voted for this question.");
+            },
+          });
+        });
+      });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+  </body>
+</html>

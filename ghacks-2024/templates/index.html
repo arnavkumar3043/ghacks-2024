@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Professors List</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <ul>
+      <img
+        src="{{ url_for('static', filename='img/logo.png') }}"
+        class="logo-img"
+      />
+      <li><a class="active" href="/">Professors</a></li>
+      <li><a href="/officehours">Office Hours</a></li>
+      <li><a href="/logout">Logout</a></li>
+    </ul>
+
+    <div style="margin-left: 25%; padding: 1px 16px; height: 1000px">
+      <h1>PROFESSORS</h1>
+      <div>
+        {% for prof in professors %}
+        <div class="card">
+          <img
+            src="{{ url_for('static', filename='img/profile.png') }}"
+            alt="Profile Picture"
+          />
+          <div>
+            <h2>{{ prof[1] }}</h2>
+            <!-- Assuming the second column is the professor's name -->
+            <div>
+              {% for class in prof[3].split(",") %}
+              <div>
+                {% if prof[2] + '#' + class in user_profs_list %}
+                <p>Enrolled in {{ class }}</p>
+                {% else %}
+                <button onclick="enroll('{{ prof[2] }}', '{{ class }}')">
+                  Enroll in {{ class }}
+                </button>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- <div class="card">
+          <img
+            src="{{ url_for('static', filename='img/profile.png') }}"
+            alt="Profile Picture"
+          />
+          <div>
+            <h2>John Doe</h2>
+            <p>Class: Senior Developer</p>
+            <button>Enroll</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <img
+            src="{{ url_for('static', filename='img/profile.png') }}"
+            alt="Profile Picture"
+          />
+          <div>
+            <h2>Jane Smith</h2>
+            <p>Class: Project Manager</p>
+            <button>Enroll</button>
+          </div>
+        </div> -->
+      </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+    <script>
+      function enroll(profEmail, className) {
+        $.ajax({
+          url: "/enrollprof",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({
+            prof_email: profEmail,
+            class_name: className,
+          }),
+          success: function (response) {
+            alert(response.message);
+            location.reload(); // Reload the page to reflect the changes
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
